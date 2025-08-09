@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-solana_crowdfunding_platform = "5PXksXtCsHyAaJs8v5WqcoHnWs9wF9maJt4DPK7qqqvX"
+crowdfunding = "5PXksXtCsHyAaJs8v5WqcoHnWs9wF9maJt4DPK7qqqvX"
 
 [registry]
 url = "https://api.apr.dev"
