@@ -64,4 +64,38 @@ describe("crowdfunding", () => {
       "Donator balance should be greater than 0"
     );
   });
+
+  it("Allow creator to create a campaign", async () => {
+    console.log("Campaign Account public key: ", campaign.publicKey.toBase58());
+
+    const campaignName = "Campaign A";
+    const campaignDescription = "Description of campaign A";
+    const campaignTargetAmount = anchor.web3.LAMPORTS_PER_SOL * 5;
+
+    const startTime = getUnixTimestamp();
+
+    await program.methods
+      .createCampaign(
+        campaignName,
+        campaignDescription,
+        new anchor.BN(campaignTargetAmount)
+      )
+      .accounts({
+        campaign: campaign.publicKey,
+        creator: creator.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([creator, campaign])
+      .rpc();
+
+    const campaignAccount = await program.account.campaign.fetch(
+      campaign.publicKey
+    );
+
+    assert.equal(campaignAccount.name, campaignName);
+    assert.equal(campaignAccount.description, campaignDescription);
+    assert.equal(campaignAccount.targetAmount.toNumber(), campaignTargetAmount);
+    assert.equal(campaignAccount.amountPledged.toNumber(), 0);
+    assert.deepEqual(campaignAccount.status, { active: {} });
+  });
 });

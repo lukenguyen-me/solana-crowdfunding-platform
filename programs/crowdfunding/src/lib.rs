@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 declare_id!("5PXksXtCsHyAaJs8v5WqcoHnWs9wF9maJt4DPK7qqqvX");
 
@@ -106,10 +105,7 @@ pub mod crowdfunding {
         campaign.creator = ctx.accounts.creator.key();
         campaign.amount_pledged = 0;
         campaign.target_amount = target_amount;
-        let now_timestamp = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+        let now_timestamp: i64 = Clock::get()?.unix_timestamp;
         campaign.start_time = now_timestamp;
         campaign.end_time = now_timestamp + 60 * 60 * 24 * 7;
         campaign.name = name;
@@ -155,10 +151,7 @@ pub mod crowdfunding {
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let creator = &ctx.accounts.creator;
-        let now_timestamp = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+        let now_timestamp: i64 = Clock::get()?.unix_timestamp;
         if now_timestamp < campaign.end_time {
             return Err(ErrorCode::CampaignStillActive.into());
         }
@@ -193,10 +186,7 @@ pub mod crowdfunding {
     pub fn refund(ctx: Context<Refund>) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let donator = &ctx.accounts.donator;
-        let now_timestamp = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+        let now_timestamp: i64 = Clock::get()?.unix_timestamp;
 
         if now_timestamp < campaign.end_time {
             return Err(ErrorCode::CampaignStillActive.into());
