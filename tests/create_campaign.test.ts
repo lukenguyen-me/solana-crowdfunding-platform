@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Crowdfunding } from "../target/types/crowdfunding";
-import { assert } from "chai";
+import { expect } from "chai";
 
 describe("create_campaign instruction", () => {
   // Configure the client to use the local cluster.
@@ -53,28 +53,23 @@ describe("create_campaign instruction", () => {
 
     const campaignAccount = await program.account.campaign.fetch(campaignPDA);
 
-    assert.equal(
-      campaignAccount.name,
+    expect(campaignAccount.name).equal(
       campaignName,
       "Campaign name should be equal to campaign name"
     );
-    assert.equal(
-      campaignAccount.description,
+    expect(campaignAccount.description).equal(
       campaignDescription,
       "Campaign description should be equal to campaign description"
     );
-    assert.equal(
-      campaignAccount.targetAmount.toNumber(),
+    expect(campaignAccount.targetAmount.toNumber()).equal(
       campaignTargetAmount,
       "Campaign target amount should be equal to campaign target amount"
     );
-    assert.equal(
-      campaignAccount.amountPledged.toNumber(),
+    expect(campaignAccount.amountPledged.toNumber()).equal(
       0,
       "Campaign amount pledged should be equal to 0"
     );
-    assert.deepEqual(
-      campaignAccount.status,
+    expect(campaignAccount.status).to.deep.equal(
       { active: {} },
       "Campaign status should be active"
     );

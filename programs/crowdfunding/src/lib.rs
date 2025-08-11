@@ -106,7 +106,7 @@ pub mod crowdfunding {
             return Err(ErrorCode::CampaignStillActive.into());
         }
         if campaign.amount_pledged >= campaign.target_amount {
-            return Err(ErrorCode::TargetNotMet.into());
+            return Err(ErrorCode::CampaignMetTarget.into());
         }
         if campaign.status == CampaignStatus::Failed {
             return Err(ErrorCode::CampaignRefunded.into());
@@ -114,14 +114,9 @@ pub mod crowdfunding {
 
         let amount_to_transfer = campaign.amount_pledged;
 
-        let cpi_context = CpiContext::new(
-            ctx.accounts.system_program.to_account_info(),
-            anchor_lang::system_program::Transfer {
-                from: campaign.to_account_info(),
-                to: donator.to_account_info(),
-            },
-        );
-        anchor_lang::system_program::transfer(cpi_context, amount_to_transfer)?;
+        **campaign.to_account_info().try_borrow_mut_lamports()? -= amount_to_transfer;
+        **donator.to_account_info().try_borrow_mut_lamports()? += amount_to_transfer;
+
         campaign.amount_pledged = 0;
         campaign.status = CampaignStatus::Failed;
         msg!(
@@ -223,6 +218,8 @@ pub enum ErrorCode {
     IntegerOverflow,
     #[msg("Target amount not met.")]
     TargetNotMet,
+    #[msg("Campaign has met target amount.")]
+    CampaignMetTarget,
     #[msg("Campaign has already been claimed.")]
     CampaignClaimed,
     #[msg("Campaign has already been refunded.")]

@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program, Connection } from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
 import { Crowdfunding } from "../target/types/crowdfunding";
-import { assert, expect } from "chai";
+import { expect } from "chai";
 
 async function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
@@ -94,9 +94,9 @@ describe("claim instruction", () => {
         .signers([creator])
         .rpc();
 
-      assert.fail("Creator should not be able to claim funds yet");
+      expect.fail("Creator should not be able to claim funds yet");
     } catch (error) {
-      assert.equal(error.error.errorCode.code, "CampaignStillActive");
+      expect(error.error.errorCode.code).to.equal("CampaignStillActive");
     }
   });
 
@@ -135,23 +135,23 @@ describe("claim instruction", () => {
     );
     const campaignAccount = await program.account.campaign.fetch(campaignPDA);
 
-    expect(creatorBalanceAfter).to.greaterThan(
+    expect(creatorBalanceAfter).greaterThan(
       creatorBalanceBefore,
       "Funds should be transfered to creator balance"
     );
-    expect(creatorBalanceAfter).to.be.lessThanOrEqual(
+    expect(creatorBalanceAfter).lessThanOrEqual(
       creatorBalanceBefore + campaignTargetAmount,
       "Funds should be transfered to creator balance"
     );
-    expect(campaignBalanceAfter).to.be.lessThan(
+    expect(campaignBalanceAfter).lessThan(
       campaignBalanceBefore,
       "Campaign balance should be decreased"
     );
-    expect(campaignBalanceAfter).to.be.greaterThanOrEqual(
+    expect(campaignBalanceAfter).greaterThanOrEqual(
       rentExemption,
       "Campaign balance should keep rent exemption"
     );
-    expect(campaignAccount.status).to.be.deep.equal(
+    expect(campaignAccount.status).deep.equal(
       { claimed: {} },
       "Campaign status should be claimed"
     );

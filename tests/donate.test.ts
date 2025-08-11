@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Crowdfunding } from "../target/types/crowdfunding";
-import { assert } from "chai";
+import { expect } from "chai";
 
 describe("donate instruction", () => {
   // Configure the client to use the local cluster.
@@ -88,18 +88,15 @@ describe("donate instruction", () => {
       donator.publicKey
     );
 
-    assert.equal(
-      campaignAccount.amountPledged.toNumber(),
+    expect(campaignAccount.amountPledged.toNumber()).equal(
       donateAmount,
       "Amount pledged should be equal to donate amount"
     );
-    assert.isAtLeast(
-      campaignBalanceAfter,
+    expect(campaignBalanceAfter).least(
       campaignBalanceBefore + donateAmount,
       "Campaign balance should be at least campaign balance before + donate amount"
     );
-    assert.isAtMost(
-      donatorBalanceAfter,
+    expect(donatorBalanceAfter).most(
       donatorBalanceBefore - donateAmount,
       "Donator balance should be below donator balance before - donate amount"
     );
