@@ -17,6 +17,7 @@ describe("refund instruction", () => {
   const creator = anchor.web3.Keypair.generate();
   const donator = anchor.web3.Keypair.generate();
   let campaignPDA: anchor.web3.PublicKey;
+  let donationPDA: anchor.web3.PublicKey;
 
   const campaignName = "Campaign A";
   const campaignDescription = "Description of campaign A";
@@ -26,6 +27,14 @@ describe("refund instruction", () => {
   before(async () => {
     [campaignPDA] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("campaign"), creator.publicKey.toBuffer()],
+      program.programId
+    );
+    [donationPDA] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("donation"),
+        campaignPDA.toBuffer(),
+        donator.publicKey.toBuffer(),
+      ],
       program.programId
     );
 
@@ -71,6 +80,7 @@ describe("refund instruction", () => {
       .accounts({
         campaign: campaignPDA,
         donator: donator.publicKey,
+        donation: donationPDA,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([donator])
@@ -84,6 +94,7 @@ describe("refund instruction", () => {
         .accounts({
           campaign: campaignPDA,
           donator: donator.publicKey,
+          donation: donationPDA,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
         .signers([donator])
@@ -111,6 +122,7 @@ describe("refund instruction", () => {
       .accounts({
         campaign: campaignPDA,
         donator: donator.publicKey,
+        donation: donationPDA,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([donator])
@@ -156,6 +168,7 @@ describe("refund instruction", () => {
         .accounts({
           campaign: campaignPDA,
           donator: donator.publicKey,
+          donation: donationPDA,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
         .signers([donator])
@@ -171,10 +184,19 @@ describe("refund instruction", () => {
     const creator2 = anchor.web3.Keypair.generate();
     const donator2 = anchor.web3.Keypair.generate();
     let campaignPDA2: anchor.web3.PublicKey;
+    let donationPDA2: anchor.web3.PublicKey;
 
     before(async () => {
       [campaignPDA2] = anchor.web3.PublicKey.findProgramAddressSync(
         [Buffer.from("campaign"), creator2.publicKey.toBuffer()],
+        program.programId
+      );
+      [donationPDA2] = anchor.web3.PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("donation"),
+          campaignPDA2.toBuffer(),
+          donator2.publicKey.toBuffer(),
+        ],
         program.programId
       );
 
@@ -220,6 +242,7 @@ describe("refund instruction", () => {
         .accounts({
           campaign: campaignPDA2,
           donator: donator2.publicKey,
+          donation: donationPDA2,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
         .signers([donator2])
@@ -236,6 +259,7 @@ describe("refund instruction", () => {
           .accounts({
             campaign: campaignPDA2,
             donator: donator2.publicKey,
+            donation: donationPDA2,
             systemProgram: anchor.web3.SystemProgram.programId,
           })
           .signers([donator2])

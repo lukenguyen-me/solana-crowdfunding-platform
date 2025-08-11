@@ -19,17 +19,20 @@ describe("create_campaign instruction", () => {
       program.programId
     );
 
-    const airdropCreatorTx = await provider.connection.requestAirdrop(
-      creator.publicKey,
-      anchor.web3.LAMPORTS_PER_SOL * 10
-    );
-
-    const latestBlockHash = await provider.connection.getLatestBlockhash();
-    await provider.connection.confirmTransaction({
-      blockhash: latestBlockHash.blockhash,
-      lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-      signature: airdropCreatorTx,
-    });
+    try {
+      const airdropCreatorTx = await provider.connection.requestAirdrop(
+        creator.publicKey,
+        anchor.web3.LAMPORTS_PER_SOL * 10
+      );
+      const latestBlockHash = await provider.connection.getLatestBlockhash();
+      await provider.connection.confirmTransaction({
+        blockhash: latestBlockHash.blockhash,
+        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+        signature: airdropCreatorTx,
+      });
+    } catch (error) {
+      console.error("Error airdropping creator:", error);
+    }
   });
 
   it("Allow creator to create a campaign", async () => {

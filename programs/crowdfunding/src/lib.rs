@@ -39,6 +39,7 @@ pub mod crowdfunding {
     pub fn donate(ctx: Context<Donate>, amount: u64) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let donator = &ctx.accounts.donator;
+        let donation = &mut ctx.accounts.donation;
         let system_program = &ctx.accounts.system_program;
 
         let cpi_context = CpiContext::new(
@@ -55,6 +56,8 @@ pub mod crowdfunding {
             .amount_pledged
             .checked_add(amount)
             .ok_or(ErrorCode::IntegerOverflow)?;
+        donation.amount = amount;
+        donation.status = DonationStatus::Active;
 
         msg!(
             "Donated {} lamports to campaign from {}.",
@@ -68,7 +71,6 @@ pub mod crowdfunding {
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let creator = &ctx.accounts.creator;
-        let system_program = &ctx.accounts.system_program;
 
         let now_timestamp: i64 = Clock::get()?.unix_timestamp;
         if now_timestamp < campaign.end_time {
@@ -100,6 +102,7 @@ pub mod crowdfunding {
     pub fn refund(ctx: Context<Refund>) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let donator = &ctx.accounts.donator;
+        let donation = &mut ctx.accounts.donation;
         let now_timestamp: i64 = Clock::get()?.unix_timestamp;
 
         if now_timestamp < campaign.end_time {
@@ -108,17 +111,23 @@ pub mod crowdfunding {
         if campaign.amount_pledged >= campaign.target_amount {
             return Err(ErrorCode::CampaignMetTarget.into());
         }
-        if campaign.status == CampaignStatus::Failed {
+        if campaign.status == CampaignStatus::Claimed {
+            return Err(ErrorCode::CampaignClaimed.into());
+        }
+        if donation.status == DonationStatus::Refunded {
             return Err(ErrorCode::CampaignRefunded.into());
         }
 
-        let amount_to_transfer = campaign.amount_pledged;
+        let amount_to_transfer = donation.amount;
 
         **campaign.to_account_info().try_borrow_mut_lamports()? -= amount_to_transfer;
         **donator.to_account_info().try_borrow_mut_lamports()? += amount_to_transfer;
 
-        campaign.amount_pledged = 0;
+        campaign.amount_pledged -= amount_to_transfer;
         campaign.status = CampaignStatus::Failed;
+        donation.amount = 0;
+        donation.status = DonationStatus::Refunded;
+
         msg!(
             "Campaign funds refunded to donator: {}. Amount: {} lamports.",
             donator.key(),
@@ -137,6 +146,14 @@ pub enum CampaignStatus {
     Successful,
     Failed,
     Claimed,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, Copy, Default)]
+pub enum DonationStatus {
+    #[default]
+    Active,
+    Claimed,
+    Refunded,
 }
 
 // ----------------------------------------------------------------
@@ -165,7 +182,16 @@ pub struct Campaign {
 // Total space = 8 + 32 + 8 + 8 + 8 + 8 + 44 + 164 + 1 = 281 bytes
 
 // ----------------------------------------------------------------
+#[account]
+#[derive(Default)]
+pub struct Donation {
+    pub donator: Pubkey,
+    pub campaign: Pubkey,
+    pub amount: u64,
+    pub status: DonationStatus,
+}
 
+// ----
 #[derive(Accounts)]
 #[instruction(name: String, description: String, target_amount: u64)]
 pub struct CreateCampaign<'info> {
@@ -189,6 +215,14 @@ pub struct Donate<'info> {
     pub campaign: Account<'info, Campaign>,
     #[account(mut)]
     pub donator: Signer<'info>,
+    #[account(
+        init,
+        payer = donator,
+        space = 8 + 32 + 32 + 8 + 1,
+        seeds = [b"donation", campaign.key().as_ref(), donator.key().as_ref()],
+        bump,
+    )]
+    pub donation: Account<'info, Donation>,
     pub system_program: Program<'info, System>,
 }
 
@@ -207,6 +241,8 @@ pub struct Refund<'info> {
     pub campaign: Account<'info, Campaign>,
     #[account(mut)]
     pub donator: Signer<'info>,
+    #[account(mut)]
+    pub donation: Account<'info, Donation>,
     pub system_program: Program<'info, System>,
 }
 

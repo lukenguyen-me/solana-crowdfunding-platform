@@ -13,10 +13,19 @@ describe("donate instruction", () => {
   const creator = anchor.web3.Keypair.generate();
   const donator = anchor.web3.Keypair.generate();
   let campaignPDA: anchor.web3.PublicKey;
+  let donationPDA: anchor.web3.PublicKey;
 
   before(async () => {
     [campaignPDA] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("campaign"), creator.publicKey.toBuffer()],
+      program.programId
+    );
+    [donationPDA] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("donation"),
+        campaignPDA.toBuffer(),
+        donator.publicKey.toBuffer(),
+      ],
       program.programId
     );
 
@@ -28,7 +37,6 @@ describe("donate instruction", () => {
       donator.publicKey,
       anchor.web3.LAMPORTS_PER_SOL * 10
     );
-
     const latestBlockHash = await provider.connection.getLatestBlockhash();
     await provider.connection.confirmTransaction({
       blockhash: latestBlockHash.blockhash,
@@ -75,6 +83,7 @@ describe("donate instruction", () => {
       .accounts({
         campaign: campaignPDA,
         donator: donator.publicKey,
+        donation: donationPDA,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([donator])
