@@ -1,0 +1,21 @@
+{
+  "tabWidth": 2,
+  "semi": true,
+  "trailingComma": "all",
+  "tailwindStylesheet": "./src/styles/global.css",
+  "plugins": [
+    "prettier-plugin-astro",
+    "prettier-plugin-tailwindcss",
+    "prettier-plugin-organize-imports",
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-merge"
+  ],
+  "overrides": [
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
+      }
+    }
+  ]
+}
