@@ -1,18 +1,20 @@
 import {
   ConnectionProvider,
+  useConnection,
   useWallet,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import {
   useWalletModal,
   WalletModalProvider,
-  WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
-import { truncateWalletAddress } from "@/lib/utils";
+import { formatMoney, isUrl, truncateWalletAddress } from "@/lib/utils";
+import { LAMPORTS_PER_SOL } from "gill";
 import { LogOut, Wallet } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -24,12 +26,16 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-const network = clusterApiUrl("devnet");
+const rpcUrl = import.meta.env.PUBLIC_RPC_URL;
+const network = isUrl(rpcUrl) ? rpcUrl : clusterApiUrl("devnet");
 const wallets = [new PhantomWalletAdapter()];
 
 function ConnectWalletButton() {
-  const { publicKey, connected, connecting, connect, disconnect } = useWallet();
+  const { publicKey, connected, connecting, disconnect } = useWallet();
+  const { connection } = useConnection();
   const { setVisible } = useWalletModal();
+
+  const [balance, setBalance] = useState<number>(0);
 
   const handleButtonClick = () => {
     if (connected) {
@@ -38,6 +44,14 @@ function ConnectWalletButton() {
       setVisible(true);
     }
   };
+
+  useEffect(() => {
+    if (connection && publicKey && connected) {
+      connection.getBalance(publicKey).then((lamports) => {
+        setBalance(lamports / LAMPORTS_PER_SOL);
+      });
+    }
+  }, [connection, publicKey, connected]);
 
   if (connected) {
     return (
@@ -48,11 +62,11 @@ function ConnectWalletButton() {
             {truncateWalletAddress(publicKey?.toBase58() || "")}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="min-w-40">
+        <DropdownMenuContent align="end" className="min-w-60">
           <DropdownMenuGroup>
             <DropdownMenuLabel className="flex items-center justify-between">
-              <span>Balance</span>
-              <span>0 SOL</span>
+              <span className="text-muted-foreground">Balance</span>
+              <span>{formatMoney(balance)} SOL</span>
             </DropdownMenuLabel>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
