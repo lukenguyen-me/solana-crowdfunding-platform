@@ -64,7 +64,9 @@ describe("refund instruction", () => {
       .createCampaign(
         campaignName,
         campaignDescription,
-        new anchor.BN(campaignTargetAmount)
+        new anchor.BN(campaignTargetAmount),
+        new anchor.BN(Date.now() / 1000 - 10),
+        new anchor.BN(Date.now() / 1000 + 10)
       )
       .accounts({
         campaign: campaignPDA,
@@ -107,8 +109,8 @@ describe("refund instruction", () => {
   });
 
   it("Allows refund after campaign ends when target not met", async () => {
-    console.log("Waiting for campaign to end (3 seconds)");
-    await sleep(3);
+    console.log("Waiting for campaign to end (10 seconds)");
+    await sleep(15);
 
     const donatorBalanceBefore = await provider.connection.getBalance(
       donator.publicKey
@@ -226,7 +228,9 @@ describe("refund instruction", () => {
         .createCampaign(
           "Campaign B",
           "Description of campaign B",
-          new anchor.BN(campaignTargetAmount)
+          new anchor.BN(campaignTargetAmount),
+          new anchor.BN(Date.now() / 1000 - 10), // Started 10 seconds ago
+          new anchor.BN(Date.now() / 1000 + 10) // Ends in 60 seconds
         )
         .accounts({
           campaign: campaignPDA2,
@@ -250,8 +254,8 @@ describe("refund instruction", () => {
     });
 
     it("Prevents refund when target amount is met", async () => {
-      console.log("Waiting for campaign to end (3 seconds)");
-      await sleep(3);
+      console.log("Waiting for campaign to end (10 seconds)");
+      await sleep(15);
 
       try {
         await program.methods

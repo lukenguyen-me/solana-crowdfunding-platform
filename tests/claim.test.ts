@@ -61,7 +61,9 @@ describe("claim instruction", () => {
       .createCampaign(
         campaignName,
         campaignDescription,
-        new anchor.BN(campaignTargetAmount)
+        new anchor.BN(campaignTargetAmount),
+        new anchor.BN(Date.now() / 1000 - 10),
+        new anchor.BN(Date.now() / 1000 + 10) // 1 second from now
       )
       .accounts({
         campaign: campaignPDA,
@@ -101,8 +103,8 @@ describe("claim instruction", () => {
   });
 
   it("Allow creator to claim funds after campaign ends", async () => {
-    console.log("Waiting for campaign to end 3 seconds");
-    await sleep(3);
+    console.log("Waiting for campaign to end (10 seconds)");
+    await sleep(15);
 
     const creatorBalanceBefore = await provider.connection.getBalance(
       creator.publicKey

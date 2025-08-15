@@ -11,19 +11,15 @@ pub mod crowdfunding {
         name: String,
         description: String,
         target_amount: u64,
+        start_time: i64,
+        end_time: i64,
     ) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         campaign.creator = ctx.accounts.creator.key();
         campaign.amount_pledged = 0;
         campaign.target_amount = target_amount;
-        let now_timestamp: i64 = Clock::get()?.unix_timestamp;
-        campaign.start_time = now_timestamp;
-
-        #[cfg(not(feature = "test"))]
-        let duration_seconds = 7 * 24 * 60 * 60; // One week for production
-        #[cfg(feature = "test")]
-        let duration_seconds = 2; // 2 seconds for tests
-        campaign.end_time = now_timestamp + duration_seconds;
+        campaign.start_time = start_time;
+        campaign.end_time = end_time;
 
         campaign.name = name;
         campaign.description = description;
@@ -41,6 +37,14 @@ pub mod crowdfunding {
         let donator = &ctx.accounts.donator;
         let donation = &mut ctx.accounts.donation;
         let system_program = &ctx.accounts.system_program;
+
+        let now = Clock::get()?.unix_timestamp;
+        if now < campaign.start_time {
+            return Err(ErrorCode::CampaignNotStarted.into());
+        }
+        if now > campaign.end_time {
+            return Err(ErrorCode::CampaignHasEnded.into());
+        }
 
         let cpi_context = CpiContext::new(
             system_program.to_account_info(),
@@ -248,6 +252,10 @@ pub struct Refund<'info> {
 
 #[error_code]
 pub enum ErrorCode {
+    #[msg("The campaign is not started yet.")]
+    CampaignNotStarted,
+    #[msg("The campaign has ended.")]
+    CampaignHasEnded,
     #[msg("The campaign is still active.")]
     CampaignStillActive,
     #[msg("Integer overflow occurred.")]

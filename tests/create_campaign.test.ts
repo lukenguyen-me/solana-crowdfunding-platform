@@ -44,7 +44,9 @@ describe("create_campaign instruction", () => {
       .createCampaign(
         campaignName,
         campaignDescription,
-        new anchor.BN(campaignTargetAmount)
+        new anchor.BN(campaignTargetAmount),
+        new anchor.BN(Date.now() / 1000),
+        new anchor.BN(Date.now() / 1000 + 60 * 60 * 24 * 7)
       )
       .accounts({
         campaign: campaignPDA,

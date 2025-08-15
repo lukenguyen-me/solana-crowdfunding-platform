@@ -57,7 +57,9 @@ describe("donate instruction", () => {
       .createCampaign(
         campaignName,
         campaignDescription,
-        new anchor.BN(campaignTargetAmount)
+        new anchor.BN(campaignTargetAmount),
+        new anchor.BN(Date.now() / 1000 - 10),
+        new anchor.BN(Date.now() / 1000 + 60 * 60 * 24 * 7)
       )
       .accounts({
         campaign: campaignPDA,
@@ -109,5 +111,167 @@ describe("donate instruction", () => {
       donatorBalanceBefore - donateAmount,
       "Donator balance should be below donator balance before - donate amount"
     );
+  });
+
+  it("Should fail when donating before campaign start time", async () => {
+    // Create a new campaign that starts in the future
+    const futureCreator = anchor.web3.Keypair.generate();
+    const futureDonator = anchor.web3.Keypair.generate();
+
+    // Airdrop funds
+    const airdropCreatorTx = await provider.connection.requestAirdrop(
+      futureCreator.publicKey,
+      anchor.web3.LAMPORTS_PER_SOL * 10
+    );
+    const airdropDonatorTx = await provider.connection.requestAirdrop(
+      futureDonator.publicKey,
+      anchor.web3.LAMPORTS_PER_SOL * 10
+    );
+    const latestBlockHash = await provider.connection.getLatestBlockhash();
+    await provider.connection.confirmTransaction({
+      blockhash: latestBlockHash.blockhash,
+      lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+      signature: airdropCreatorTx,
+    });
+    await provider.connection.confirmTransaction({
+      blockhash: latestBlockHash.blockhash,
+      lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+      signature: airdropDonatorTx,
+    });
+
+    const [futureCampaignPDA] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("campaign"), futureCreator.publicKey.toBuffer()],
+      program.programId
+    );
+    const [futureDonationPDA] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("donation"),
+        futureCampaignPDA.toBuffer(),
+        futureDonator.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
+
+    // Create campaign that starts 1 hour in the future
+    const futureStartTime = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hour from now
+    const futureEndTime = futureStartTime + 60 * 60 * 24 * 7; // 7 days after start
+
+    await program.methods
+      .createCampaign(
+        "Future Campaign",
+        "Campaign that starts in the future",
+        new anchor.BN(anchor.web3.LAMPORTS_PER_SOL * 5),
+        new anchor.BN(futureStartTime),
+        new anchor.BN(futureEndTime)
+      )
+      .accounts({
+        campaign: futureCampaignPDA,
+        creator: futureCreator.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([futureCreator])
+      .rpc();
+
+    // Try to donate before start time - should fail
+    const donateAmount = anchor.web3.LAMPORTS_PER_SOL * 1;
+
+    try {
+      await program.methods
+        .donate(new anchor.BN(donateAmount))
+        .accounts({
+          campaign: futureCampaignPDA,
+          donator: futureDonator.publicKey,
+          donation: futureDonationPDA,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([futureDonator])
+        .rpc();
+
+      expect.fail("Expected donation to fail before start time");
+    } catch (error) {
+      expect(error.error.errorMessage).to.equal(
+        "The campaign is not started yet."
+      );
+    }
+  });
+
+  it("Should fail when donating after campaign end time", async () => {
+    // Create a new campaign that has already ended
+    const pastCreator = anchor.web3.Keypair.generate();
+    const pastDonator = anchor.web3.Keypair.generate();
+
+    // Airdrop funds
+    const airdropCreatorTx = await provider.connection.requestAirdrop(
+      pastCreator.publicKey,
+      anchor.web3.LAMPORTS_PER_SOL * 10
+    );
+    const airdropDonatorTx = await provider.connection.requestAirdrop(
+      pastDonator.publicKey,
+      anchor.web3.LAMPORTS_PER_SOL * 10
+    );
+    const latestBlockHash = await provider.connection.getLatestBlockhash();
+    await provider.connection.confirmTransaction({
+      blockhash: latestBlockHash.blockhash,
+      lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+      signature: airdropCreatorTx,
+    });
+    await provider.connection.confirmTransaction({
+      blockhash: latestBlockHash.blockhash,
+      lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+      signature: airdropDonatorTx,
+    });
+
+    const [pastCampaignPDA] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("campaign"), pastCreator.publicKey.toBuffer()],
+      program.programId
+    );
+    const [pastDonationPDA] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("donation"),
+        pastCampaignPDA.toBuffer(),
+        pastDonator.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
+
+    // Create campaign that has already ended
+    const pastStartTime = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 8; // 8 days ago
+    const pastEndTime = Math.floor(Date.now() / 1000) - 60 * 60; // 1 hour ago
+
+    await program.methods
+      .createCampaign(
+        "Past Campaign",
+        "Campaign that has already ended",
+        new anchor.BN(anchor.web3.LAMPORTS_PER_SOL * 5),
+        new anchor.BN(pastStartTime),
+        new anchor.BN(pastEndTime)
+      )
+      .accounts({
+        campaign: pastCampaignPDA,
+        creator: pastCreator.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([pastCreator])
+      .rpc();
+
+    // Try to donate after end time - should fail
+    const donateAmount = anchor.web3.LAMPORTS_PER_SOL * 1;
+
+    try {
+      await program.methods
+        .donate(new anchor.BN(donateAmount))
+        .accounts({
+          campaign: pastCampaignPDA,
+          donator: pastDonator.publicKey,
+          donation: pastDonationPDA,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([pastDonator])
+        .rpc();
+
+      expect.fail("Expected donation to fail after end time");
+    } catch (error) {
+      expect(error.error.errorMessage).to.equal("The campaign has ended.");
+    }
   });
 });
