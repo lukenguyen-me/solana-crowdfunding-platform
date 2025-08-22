@@ -13,6 +13,7 @@ pub mod crowdfunding {
         target_amount: u64,
         start_time: i64,
         end_time: i64,
+        _timestamp: i64,
     ) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         campaign.creator = ctx.accounts.creator.key();
@@ -197,13 +198,20 @@ pub struct Donation {
 
 // ----
 #[derive(Accounts)]
-#[instruction(name: String, description: String, target_amount: u64)]
+#[instruction(
+    name: String, 
+    description: String, 
+    target_amount: u64,
+    start_time: i64, 
+    end_time: i64,
+    timestamp: i64 // Add the timestamp here
+)]
 pub struct CreateCampaign<'info> {
     #[account(
         init,
         payer = creator,
         space = 8 + 32 + 8 + 8 + 8 + 8 + 4 + 40 + 4 + 160 + 1,
-        seeds = [b"campaign", creator.key().as_ref()],
+        seeds = [b"campaign", creator.key().as_ref(), &timestamp.to_le_bytes()],
         bump,
     )]
     pub campaign: Account<'info, Campaign>,
