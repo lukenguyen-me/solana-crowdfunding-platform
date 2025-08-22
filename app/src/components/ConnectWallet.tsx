@@ -1,18 +1,9 @@
-import {
-  ConnectionProvider,
-  useConnection,
-  useWallet,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import {
-  useWalletModal,
-  WalletModalProvider,
-} from "@solana/wallet-adapter-react-ui";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
-import { clusterApiUrl } from "@solana/web3.js";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { formatMoney, isUrl, truncateWalletAddress } from "@/lib/utils";
-import { LAMPORTS_PER_SOL } from "gill";
+import AppWalletProvider from "@/providers/AppWalletProvider";
 import { LogOut, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
@@ -25,10 +16,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-
-const rpcUrl = import.meta.env.PUBLIC_RPC_URL;
-const network = isUrl(rpcUrl) ? rpcUrl : clusterApiUrl("devnet");
-const wallets = [new PhantomWalletAdapter()];
 
 function ConnectWalletButton() {
   const { publicKey, connected, connecting, disconnect } = useWallet();
@@ -90,12 +77,8 @@ function ConnectWalletButton() {
 
 export default function ConnectWallet() {
   return (
-    <ConnectionProvider endpoint={network}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          <ConnectWalletButton />
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
+    <AppWalletProvider>
+      <ConnectWalletButton />
+    </AppWalletProvider>
   );
 }

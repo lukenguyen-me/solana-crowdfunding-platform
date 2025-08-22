@@ -1,0 +1,430 @@
+{
+  "address": "AsnLjBRXqhJ1RWduiP6so99Av7Gd14xL5Vo5YDG47FTW",
+  "metadata": {
+    "name": "crowdfunding",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "claim",
+      "discriminator": [
+        62,
+        198,
+        214,
+        193,
+        213,
+        159,
+        108,
+        210
+      ],
+      "accounts": [
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  109,
+                  112,
+                  97,
+                  105,
+                  103,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "campaign"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_campaign",
+      "discriminator": [
+        111,
+        131,
+        187,
+        98,
+        160,
+        193,
+        114,
+        244
+      ],
+      "accounts": [
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  109,
+                  112,
+                  97,
+                  105,
+                  103,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "arg",
+                "path": "timestamp"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "target_amount",
+          "type": "u64"
+        },
+        {
+          "name": "start_time",
+          "type": "i64"
+        },
+        {
+          "name": "end_time",
+          "type": "i64"
+        },
+        {
+          "name": "_timestamp",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "donate",
+      "discriminator": [
+        121,
+        186,
+        218,
+        211,
+        73,
+        70,
+        196,
+        180
+      ],
+      "accounts": [
+        {
+          "name": "campaign",
+          "writable": true
+        },
+        {
+          "name": "donator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "donation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  111,
+                  110,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "campaign"
+              },
+              {
+                "kind": "account",
+                "path": "donator"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "refund",
+      "discriminator": [
+        2,
+        96,
+        183,
+        251,
+        63,
+        208,
+        46,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "campaign",
+          "writable": true
+        },
+        {
+          "name": "donator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "donation",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Campaign",
+      "discriminator": [
+        50,
+        40,
+        49,
+        11,
+        157,
+        220,
+        229,
+        192
+      ]
+    },
+    {
+      "name": "Donation",
+      "discriminator": [
+        189,
+        210,
+        54,
+        77,
+        216,
+        85,
+        7,
+        68
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "CampaignNotStarted",
+      "msg": "The campaign is not started yet."
+    },
+    {
+      "code": 6001,
+      "name": "CampaignHasEnded",
+      "msg": "The campaign has ended."
+    },
+    {
+      "code": 6002,
+      "name": "CampaignStillActive",
+      "msg": "The campaign is still active."
+    },
+    {
+      "code": 6003,
+      "name": "IntegerOverflow",
+      "msg": "Integer overflow occurred."
+    },
+    {
+      "code": 6004,
+      "name": "TargetNotMet",
+      "msg": "Target amount not met."
+    },
+    {
+      "code": 6005,
+      "name": "CampaignMetTarget",
+      "msg": "Campaign has met target amount."
+    },
+    {
+      "code": 6006,
+      "name": "CampaignClaimed",
+      "msg": "Campaign has already been claimed."
+    },
+    {
+      "code": 6007,
+      "name": "CampaignRefunded",
+      "msg": "Campaign has already been refunded."
+    },
+    {
+      "code": 6008,
+      "name": "InsufficientFundsForTransfer",
+      "msg": "Insufficient funds for transfer."
+    },
+    {
+      "code": 6009,
+      "name": "OverflowError",
+      "msg": "Overflow error occurred."
+    }
+  ],
+  "types": [
+    {
+      "name": "Campaign",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount_pledged",
+            "type": "u64"
+          },
+          {
+            "name": "target_amount",
+            "type": "u64"
+          },
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "CampaignStatus"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CampaignStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Successful"
+          },
+          {
+            "name": "Failed"
+          },
+          {
+            "name": "Claimed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Donation",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "donator",
+            "type": "pubkey"
+          },
+          {
+            "name": "campaign",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "DonationStatus"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DonationStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Claimed"
+          },
+          {
+            "name": "Refunded"
+          }
+        ]
+      }
+    }
+  ]
+}

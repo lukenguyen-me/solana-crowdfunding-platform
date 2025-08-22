@@ -8,6 +8,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import Layout from "@/layouts/Layout.astro";
+import AppWalletProvider from "@/providers/AppWalletProvider";
 ---
 
 <Layout>
@@ -20,7 +21,7 @@ import Layout from "@/layouts/Layout.astro";
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <CreateCampaign />
+        <CreateCampaign client:load />
       </CardContent>
     </Card>
   </main>
