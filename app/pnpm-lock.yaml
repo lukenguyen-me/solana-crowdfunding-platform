@@ -17,6 +17,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.1
         version: 5.2.1(react-hook-form@7.62.0(react@19.1.1))
+      '@nanostores/react':
+        specifier: ^1.0.0
+        version: 1.0.0(nanostores@1.0.1)(react@19.1.1)
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.16
         version: 2.1.16(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -47,6 +50,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.11
         version: 4.1.11(vite@6.3.5(@types/node@24.2.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1))
+      '@tanstack/react-query':
+        specifier: ^5.85.5
+        version: 5.85.5(react@19.1.1)
       astro:
         specifier: ^5.12.9
         version: 5.12.9(@types/node@24.2.1)(idb-keyval@6.2.2)(jiti@2.5.1)(lightningcss@1.30.1)(rollup@4.46.2)(terser@5.43.1)(typescript@5.9.2)
@@ -62,6 +68,9 @@ importers:
       lucide-react:
         specifier: ^0.539.0
         version: 0.539.0(react@19.1.1)
+      nanostores:
+        specifier: ^1.0.1
+        version: 1.0.1
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -1193,6 +1202,13 @@ packages:
   '@mobily/ts-belt@3.13.1':
     resolution: {integrity: sha512-K5KqIhPI/EoCTbA6CGbrenM9s41OouyK8A03fGJJcla/zKucsgLbz8HNbeseoLarRPgyWJsUyCYqFhI7t3Ra9Q==}
     engines: {node: '>= 10.*'}
+
+  '@nanostores/react@1.0.0':
+    resolution: {integrity: sha512-eDduyNy+lbQJMg6XxZ/YssQqF6b4OXMFEZMYKPJCCmBevp1lg0g+4ZRi94qGHirMtsNfAWKNwsjOhC+q1gvC+A==}
+    engines: {node: ^20.0.0 || >=22.0.0}
+    peerDependencies:
+      nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
+      react: '>=18.0.0'
 
   '@ngraveio/bc-ur@1.1.13':
     resolution: {integrity: sha512-j73akJMV4+vLR2yQ4AphPIT5HZmxVjn/LxpL7YHoINnXoH6ccc90Zzck6/n6a3bCXOVZwBxq+YHwbAKRV+P8Zg==}
@@ -2542,6 +2558,14 @@ packages:
     resolution: {integrity: sha512-RHYhrR3hku0MJFRV+fN2gNbDNEh3dwKvY8XJvTxCSXeMOsCRSr+uKvDWQcbizrHgjML6ZmTE5OwMrl5wKcujCw==}
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7
+
+  '@tanstack/query-core@5.85.5':
+    resolution: {integrity: sha512-KO0WTob4JEApv69iYp1eGvfMSUkgw//IpMnq+//cORBzXf0smyRwPLrUvEe5qtAEGjwZTXrjxg+oJNP/C00t6w==}
+
+  '@tanstack/react-query@5.85.5':
+    resolution: {integrity: sha512-/X4EFNcnPiSs8wM2v+b6DqS5mmGeuJQvxBglmDxl6ZQb5V26ouD2SJYAcC3VjbNwqhY2zjxVD15rDA5nGbMn3A==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@toruslabs/base-controllers@5.11.0':
     resolution: {integrity: sha512-5AsGOlpf3DRIsd6PzEemBoRq+o2OhgSFXj5LZD6gXcBlfe0OpF+ydJb7Q8rIt5wwpQLNJCs8psBUbqIv7ukD2w==}
@@ -4731,6 +4755,10 @@ packages:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+
+  nanostores@1.0.1:
+    resolution: {integrity: sha512-kNZ9xnoJYKg/AfxjrVL4SS0fKX++4awQReGqWnwTRHxeHGZ1FJFVgTqr/eMrNQdp0Tz7M7tG/TDaX8QfHDwVCw==}
+    engines: {node: ^20.0.0 || >=22.0.0}
 
   negotiator@0.6.3:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
@@ -7437,6 +7465,11 @@ snapshots:
 
   '@mobily/ts-belt@3.13.1': {}
 
+  '@nanostores/react@1.0.0(nanostores@1.0.1)(react@19.1.1)':
+    dependencies:
+      nanostores: 1.0.1
+      react: 19.1.1
+
   '@ngraveio/bc-ur@1.1.13':
     dependencies:
       '@keystonehq/alias-sampling': 0.1.2
@@ -9351,6 +9384,13 @@ snapshots:
       '@tailwindcss/oxide': 4.1.11
       tailwindcss: 4.1.11
       vite: 6.3.5(@types/node@24.2.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)
+
+  '@tanstack/query-core@5.85.5': {}
+
+  '@tanstack/react-query@5.85.5(react@19.1.1)':
+    dependencies:
+      '@tanstack/query-core': 5.85.5
+      react: 19.1.1
 
   '@toruslabs/base-controllers@5.11.0(@babel/runtime@7.28.3)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
@@ -12695,6 +12735,8 @@ snapshots:
   nan@2.23.0: {}
 
   nanoid@3.3.11: {}
+
+  nanostores@1.0.1: {}
 
   negotiator@0.6.3: {}
 

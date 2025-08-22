@@ -3,9 +3,11 @@ import ConnectWallet from "./ConnectWallet";
 ---
 
 <header class="fixed top-0 h-20 w-full border-b bg-background">
-  <div class="container mx-auto flex h-full items-center justify-between">
+  <div
+    class="container mx-auto flex h-full items-center justify-between px-4 lg:px-0"
+  >
     <span class="font-mono text-lg font-bold uppercase"
-      >Crowdfunding Platform</span
+      >Crowdfunding <br class="lg:hidden" /> Platform</span
     >
     <div class="flex items-center">
       <ConnectWallet client:load />

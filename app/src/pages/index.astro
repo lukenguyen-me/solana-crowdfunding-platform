@@ -1,5 +1,6 @@
 ---
 import CreateCampaign from "@/components/CreateCampaign";
+import ListCampaign from "@/components/ListCampaign";
 import {
   Card,
   CardHeader,
@@ -8,21 +9,31 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import Layout from "@/layouts/Layout.astro";
-import AppWalletProvider from "@/providers/AppWalletProvider";
 ---
 
 <Layout>
-  <main class="container mx-auto py-20 pt-32">
-    <Card className="w-md">
-      <CardHeader>
-        <CardTitle>Create Campaign</CardTitle>
-        <CardDescription>
-          Create a new campaign to raise funds for your cause.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <CreateCampaign client:load />
-      </CardContent>
-    </Card>
+  <main class="container mx-auto px-4 py-20 pt-32 lg:px-0">
+    <div class="flex flex-col gap-12 lg:flex-row">
+      <Card className="max-w-sm">
+        <CardHeader>
+          <CardTitle>Create Campaign</CardTitle>
+          <CardDescription>
+            Create a new campaign to raise funds for your cause.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CreateCampaign client:load />
+        </CardContent>
+      </Card>
+      <Card className="flex-1">
+        <CardHeader>
+          <CardTitle>All Campaigns</CardTitle>
+          <CardDescription> All running campaigns. </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ListCampaign client:load />
+        </CardContent>
+      </Card>
+    </div>
   </main>
 </Layout>
